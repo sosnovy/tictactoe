@@ -12,7 +12,6 @@ void clearScreen()
     for (n = 0; n < 5; n++)
         printf( "\n\n\n\n\n\n\n\n\n\n" );
 }
-
 void printAvailableTiles(){
     std::cout << "Available tiles: ";
     for(int i = 0; i < tiles.size(); i++){
@@ -25,7 +24,6 @@ void printAvailableTiles(){
 void printGrid(){
     for(int j = 0; j < 9; j=j+3) {
         for (int i = 0; i < 3; i++) {
-
             char x = ' ';
             if(tiles[i+j] == 0){
                 x = 'X';
@@ -37,7 +35,6 @@ void printGrid(){
             if (i != 2) {
                 std::cout << " || ";
             }
-
         }
         if(j != 6){
             std::cout << "\n" << "===========" << "\n";
@@ -90,9 +87,7 @@ void checkWin(){
             won = true;
         }
         std::cout << "\n";
-
     }
-
 }
 void game(){
     int var {0};
@@ -103,7 +98,12 @@ void game(){
             printAvailableTiles();
             std::cin >> var;
             while(tiles[var] >= 0){
-                std::cout << "Tile already selected, please select a new tile. \n";
+                if(var > tiles.size()-1 || var < 0 ){
+                    std::cout << "Selection out of bounds. \n";
+                }
+                else{
+                    std::cout << "Tile already selected, please select a new tile. \n";
+                }
                 printAvailableTiles();
                 std::cin >> var;
             }
@@ -125,7 +125,6 @@ void game(){
                 std::cout << "TIE";
                 break;
             }
-
         }
 }
 void startGame(){
@@ -136,16 +135,12 @@ void startGame(){
         if(selection == 0) {
             clearScreen();
             startGame();
-
         }
         else{
             exit;
         }
-
-
-
 }
-
 int main() {
+    clearScreen();
     startGame();
 }
