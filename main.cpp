@@ -6,6 +6,13 @@ int turn;
 bool player;
 bool won;
 
+void clearScreen()
+{
+    int n;
+    for (n = 0; n < 5; n++)
+        printf( "\n\n\n\n\n\n\n\n\n\n" );
+}
+
 void printAvailableTiles(){
     std::cout << "Available tiles: ";
     for(int i = 0; i < tiles.size(); i++){
@@ -106,6 +113,7 @@ void game(){
             else{
                 tiles[var] = 1;
             }
+            clearScreen();
             checkWin();
             printGrid();
             if(won){
@@ -117,6 +125,7 @@ void game(){
                 std::cout << "TIE";
                 break;
             }
+
         }
 }
 void startGame(){
@@ -125,7 +134,9 @@ void startGame(){
     int selection = -1;
         std::cin >> selection;
         if(selection == 0) {
+            clearScreen();
             startGame();
+
         }
         else{
             exit;
