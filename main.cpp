@@ -1,146 +1,239 @@
 #include <iostream>
 #include <memory>
+#include <cmath>
 
-std::array<int,9> tiles;
-int turn;
-bool player;
-bool won;
 
-void clearScreen()
-{
-    int n;
-    for (n = 0; n < 5; n++)
-        printf( "\n\n\n\n\n\n\n\n\n\n" );
-}
-void printAvailableTiles(){
-    std::cout << "Available tiles: ";
-    for(int i = 0; i < tiles.size(); i++){
-        if(tiles[i] < 0){
-            std::cout << i << " ";
+struct Game{
+    char currPlayer;
+    int turn;
+    std::array<int,9> tiles;
+    Game(char currPlayer_, int turn_, std::array<int,9> tiles_):
+        currPlayer{currPlayer_}
+        ,turn{turn_}
+        ,tiles{tiles_}{};
+
+    char checkWin(){
+        if(turn > 3){
+            //horizontal win conditions
+            if(tiles[0] == tiles[1] && tiles[1] == tiles[2] && tiles[0] >= 0){
+                if(tiles[0] == 0){
+                    return 'X';;
+                }
+                else if(tiles[0] == 1 ){
+                    return 'O';
+                }
+
+            }
+            else if(tiles[3] == tiles[4] && tiles[4] == tiles[5] && tiles[3] >= 0){
+                if(tiles[0] == 0){
+                    return 'X';
+                }
+                else if(tiles[0] == 1 ){
+                    return 'O';
+                }
+            }
+            else if(tiles[6] == tiles[7] && tiles[7] == tiles[8] && tiles[6] >= 0){
+                if(tiles[0] == 0){
+                    return 'X';
+                }
+                else if(tiles[0] == 1 ){
+                    return 'O';
+                }
+            }
+                //vertical win conditions
+            else if(tiles[0] == tiles[3] && tiles[3] == tiles[6] && tiles[0] >= 0){
+                if(tiles[0] == 0){
+                    return 'X';
+                }
+                else if(tiles[0] == 1 ){
+                    return 'O';
+                }
+            }
+            else if(tiles[1] == tiles[4] && tiles[4] == tiles[7] && tiles[1] >= 0){
+                if(tiles[0] == 0){
+                    return 'X';
+                }
+                else if(tiles[0] == 1 ){
+                    return 'O';
+                }
+            }
+            else if(tiles[2] == tiles[5] && tiles[5] == tiles[8] && tiles[2] >= 0){
+                if(tiles[0] == 0){
+                    return 'X';
+                }
+                else if(tiles[0] == 1 ){
+                    return 'O';
+                }
+            }
+                //diagonal win conditions
+            else if(tiles[0] == tiles[4] && tiles[4] == tiles[8] && tiles[0] >= 0){
+                if(tiles[0] == 0){
+                    return 'X';
+                }
+                else if(tiles[0] == 1 ){
+                    return 'O';
+                }
+            }
+            else if(tiles[2] == tiles[4] && tiles[4] == tiles[6] && tiles[2] >= 0){
+                if(tiles[0] == 0){
+                    return 'X';
+                }
+                else if(tiles[0] == 1 ){
+                    return 'O';
+                }
+            }
+            else{
+                std::cout << "\n";
+                return 'n';
+            }
+        }
+        else{
+            return 'n';
         }
     }
-    std::cout << "\n";
-}
-void printGrid(){
-    for(int j = 0; j < 9; j=j+3) {
-        for (int i = 0; i < 3; i++) {
-            char x = ' ';
-            if(tiles[i+j] == 0){
-                x = 'X';
-            }
-            else if(tiles[i+j] == 1){
-                x = 'O';
-            }
-            std::cout << x;
-            if (i != 2) {
-                std::cout << " || ";
-            }
-        }
-        if(j != 6){
-            std::cout << "\n" << "===========" << "\n";
+    float scores(char& var){
+        switch(var){
+            case 'X':
+                return -1;
+            case 'O':
+                return 1;
+            default:
+                return 0;
         }
     }
-    std::cout << "\n";
-}
-void initialize(){
-    tiles={-1,-1,-1,-1,-1,-1,-1,-1,-1};
-    turn = 0;
-    player = 0;
-    won = false;
-    printGrid();
-}
-void checkWin(){
-    if(turn > 3){
-        //horizontal win conditions
-        if(tiles[0] == tiles[1] && tiles[1] == tiles[2] && tiles[0] >= 0){
-            std:: cout << "Player " << player+1 << " wins!";
-            won = true;
+    float minimax(Game* game, int depth, char player){
+        if(depth == 0 || game->checkWin() != 'n'){
+            return scores(player);
         }
-        else if(tiles[3] == tiles[4] && tiles[4] == tiles[5] && tiles[3] >= 0){
-            std:: cout << "Player " << player+1 << " wins!";
-            won = true;
+        if(player == 'X'){
+            float value = -INFINITY;
+            for(int i = 0; i < tiles.size(); i++){
+                if(game->tiles[i] < 0){
+                    Game* newGame = new Game(player,game->turn+1,game->tiles);
+                    newGame->tiles[i] = 1;
+                    value = fmax(value*depth, minimax(newGame, depth - 1,'O'));
+                    return value*depth;
+                }
+            }
+
         }
-        else if(tiles[6] == tiles[7] && tiles[7] == tiles[8] && tiles[6] >= 0){
-            std:: cout << "Player " << player+1 << " wins!";
-            won = true;
+        else{
+            float value = INFINITY;
+            for(int i = 0; i < tiles.size(); i++){
+                if(game->tiles[i] < 0){
+                    Game* newGame = new Game(player,game->turn+1,game->tiles);
+                    newGame->tiles[i] = 0;
+                    value = fmin(value*depth, minimax(newGame, depth - 1,'X'));
+                    return value*depth;
+                }
+            }
         }
-            //vertical win conditions
-        else if(tiles[0] == tiles[3] && tiles[3] == tiles[6] && tiles[0] >= 0){
-            std:: cout << "Player " << player+1 << " wins!";
-            won = true;
+
+    }
+    void aiTurn(){
+        float score = -INFINITY;
+        int toPlace;
+        for(int i = 0; i < tiles.size(); i++){
+            if(tiles[i] == -1){
+                Game* newGame = new Game('O',turn+1,tiles);
+                newGame->tiles[i] = 1;
+                float newScore = minimax(newGame,9 - newGame->turn,'O');
+                if(newScore > score){
+                    score = newScore;
+                    toPlace = i;
+                }
+            }
         }
-        else if(tiles[1] == tiles[4] && tiles[4] == tiles[7] && tiles[1] >= 0){
-            std:: cout << "Player " << player+1 << " wins!";
-            won = true;
-        }
-        else if(tiles[2] == tiles[5] && tiles[5] == tiles[8] && tiles[2] >= 0){
-            std:: cout << "Player " << player+1 << " wins!";
-            won = true;
-        }
-            //diagonal win conditions
-        else if(tiles[0] == tiles[4] && tiles[4] == tiles[8] && tiles[0] >= 0){
-            std:: cout << "Player " << player+1 << " wins!";
-            won = true;
-        }
-        else if(tiles[2] == tiles[4] && tiles[4] == tiles[6] && tiles[2] >= 0){
-            std:: cout << "Player " << player+1 << " wins!";
-            won = true;
+        tiles[toPlace] = 1;
+
+        currPlayer = 'O';
+    }
+    void printAvailableTiles(){
+        std::cout << "Available tiles: ";
+        for(int i = 0; i < tiles.size(); i++){
+            if(tiles[i] < 0){
+                std::cout << i << " ";
+            }
         }
         std::cout << "\n";
     }
-}
-void game(){
-    int var {0};
-        initialize();
-        while(!won) {
-            std::cout << "It's player " << player + 1 << "'s turn! \n";
-            std::cout << "Please select a tile \n";
-            printAvailableTiles();
-            std::cin >> var;
-            while(tiles[var] >= 0){
-                if(var > tiles.size()-1 || var < 0 ){
-                    std::cout << "Selection out of bounds. \n";
+    void printGrid(){
+        for(int j = 0; j < 9; j=j+3) {
+            for (int i = 0; i < 3; i++) {
+                char x = ' ';
+                if(tiles[i+j] == 0){
+                    x = 'X';
                 }
-                else{
-                    std::cout << "Tile already selected, please select a new tile. \n";
+                else if(tiles[i+j] == 1){
+                    x = 'O';
                 }
-                printAvailableTiles();
-                std::cin >> var;
+                std::cout << x;
+                if (i != 2) {
+                    std::cout << " || ";
+                }
             }
-            if(player){
+            if(j != 6){
+                std::cout << "\n" << "===========" << "\n";
+            }
+        }
+        std::cout << "\n";
+    }
+    void startGame(){
+        int var;
+
+        while(true){
+            if (Game::checkWin() != 'n') {
+                std::cout << "Game over";
+                Game::printGrid();
+                break;
+            }
+            if(currPlayer == 'O') {
+
+
+                Game::printGrid();
+                Game::printAvailableTiles();
+                std::cin >> var;
+                while (tiles[var] >= 0) {
+                    if (var > tiles.size() - 1 || var < 0) {
+                        std::cout << "Selection out of bounds. \n";
+                    } else {
+                        std::cout << "Tile already selected, please select a new tile. \n";
+                    }
+                    printAvailableTiles();
+                    std::cin >> var;
+                }
                 tiles[var] = 0;
+                std::cout << "DEBUG \n";
+                for(int a : Game::tiles){
+                    std::cout << a << " ";
+                }
+                std::cout << "\n";
+                if (checkWin() != 'n') {
+                    std::cout << "Game over \n";
+                    break;
+                }
+                currPlayer = 'X';
+                turn++;
             }
             else{
-                tiles[var] = 1;
+                aiTurn();
+                turn++;
             }
-            clearScreen();
-            checkWin();
-            printGrid();
-            if(won){
-                break;
-            }
-            player = !player;
-            turn++;
-            if(turn > 8){
-                std::cout << "TIE";
-                break;
-            }
+
+
+
+
         }
-}
-void startGame(){
-    game();
-    std::cout << "Would you like to play again? \n 0: Play again \n 1: Exit";
-    int selection = -1;
-        std::cin >> selection;
-        if(selection == 0) {
-            clearScreen();
-            startGame();
-        }
-        else{
-            exit;
-        }
-}
+
+    }
+
+
+
+};
 int main() {
-    clearScreen();
-    startGame();
+    Game* tictactoe = new Game('O',0,{-1,-1,-1,-1,-1,-1,-1,-1,-1});
+    tictactoe->startGame();
+
+
+
 }
